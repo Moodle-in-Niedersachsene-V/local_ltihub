@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/ltihub/db" VERSION="20261031" COMMENT="XMLDB file for local_ltihub"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_ltihub_map" COMMENT="One hub course per teacher and platform course">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="platformkey" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" COMMENT="sha256 of issuer, platform context id and platform user id"/>
+        <FIELD NAME="issuer" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="iss claim of the platform"/>
+        <FIELD NAME="platformcontextid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="context id claim of the platform"/>
+        <FIELD NAME="platformcontexttitle" TYPE="char" LENGTH="1333" NOTNULL="false" SEQUENCE="false" COMMENT="context title claim at creation time"/>
+        <FIELD NAME="ltideploymentid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="deployment of the creating launch"/>
+        <FIELD NAME="templateid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="course id of the template that was copied"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="ownerid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="hub user that owns the course, 0 after privacy deletion"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id"/>
+        <KEY NAME="ownerid" TYPE="foreign" FIELDS="ownerid" REFTABLE="user" REFFIELDS="id"/>
+        <KEY NAME="ltideploymentid" TYPE="foreign" FIELDS="ltideploymentid" REFTABLE="enrol_lti_deployment" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="platformkey" UNIQUE="true" FIELDS="platformkey"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_ltihub_item" COMMENT="Which activity of a hub course was copied from which activity of its template">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="mapid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="templatecmid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="course module id in the template course"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="course module id in the hub course, 0 if unknown"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="mapid" TYPE="foreign" FIELDS="mapid" REFTABLE="local_ltihub_map" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="mapidtemplatecmid" UNIQUE="true" FIELDS="mapid, templatecmid"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
